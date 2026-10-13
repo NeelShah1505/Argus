@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+  /* Surfaces & Hierarchy */
+  --bg-canvas: #0A0D12;
+  --bg-surface: #10151C;
+  --bg-raised: #161D26;
+  --bg-inset: #06080B;
+
+  /* Borders & Dividers */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.22);
+
+  /* Typography & Readability */
+  --text-primary: #E9EEF4;
+  --text-secondary: #9BA9B7;
+  --text-muted: #5D6B7A;
+
+  /* Accuracy Tiers */
+  --tier-verified: #2FD6A0;
+  --tier-verified-bg: rgba(47, 214, 160, 0.10);
+  --tier-extracted: #7FA6C9;
+  --tier-extracted-bg: rgba(127, 166, 201, 0.10);
+  --tier-estimated: #9B8CFF;
+  --tier-estimated-bg: rgba(155, 140, 255, 0.10);
+  --tier-review: #F5B541;
+  --tier-review-bg: rgba(245, 181, 65, 0.12);
+  --tier-failed: #F0545C;
+  --tier-failed-bg: rgba(240, 84, 92, 0.12);
+
+  /* Brand Accent */
+  --accent: #2FD6A0;
+  --focus-ring: #2FD6A0;
+
+  /* Chart Channels */
+  --chart-1: #2FD6A0;
+  --chart-2: #5B9CFF;
+  --chart-3: #F5B541;
+  --chart-4: #F0545C;
+  --chart-5: #9B8CFF;
+  --chart-6: #64C7CC;
+  --chart-7: #C9D1D9;
+  --chart-8: #E58FB1;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-serif {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+.font-mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
