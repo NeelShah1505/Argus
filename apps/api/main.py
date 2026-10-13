@@ -17,8 +17,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from apps.api.routers import documents_router
+from apps.api.routers import calc_router, documents_router
 app.include_router(documents_router)
+app.include_router(calc_router)
 
 
 class HealthResponse(BaseModel):
