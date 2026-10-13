@@ -8,6 +8,7 @@ node_modules/
 .next/
 dist/
 build/
+.argus_storage/
 .DS_Store
 *.env
 !.env.example
