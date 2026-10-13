@@ -208,3 +208,73 @@ async def get_document_elements(doc_id: str, tier: Optional[AccuracyTier] = None
         "tables": tables,
         "text_elements": text_elements,
     }
+
+
+class CellCorrectionRequest(BaseModel):
+    document_id: str
+    new_raw_text: str
+    reviewer_id: str
+    reason: str
+
+
+@router.patch("/elements/{cell_id}")
+async def correct_cell(cell_id: str, payload: CellCorrectionRequest):
+    """
+    Submit a human reviewer correction.
+    Bumps document version, updates cell, assigns Tier V, and logs an append-only audit event.
+    """
+    from packages.normalize import canonicalize_financial_number
+
+    repo = get_document_repo()
+    doc = repo.get_document(payload.document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    updated_cell = repo.update_cell(
+        doc_id=payload.document_id,
+        cell_id=cell_id,
+        new_raw_text=payload.new_raw_text,
+        reviewer_id=payload.reviewer_id,
+        reason=payload.reason,
+    )
+    if not updated_cell:
+        raise HTTPException(status_code=404, detail=f"Cell {cell_id} not found.")
+
+    # Canonicalize and approve to Verified
+    norm = canonicalize_financial_number(payload.new_raw_text)
+    updated_cell.normalized_value = norm.normalized_value
+    updated_cell.currency = norm.currency
+    updated_cell.scale = norm.scale
+    updated_cell.tier = AccuracyTier.VERIFIED
+
+    # Bump document version
+    doc.version += 1
+
+    return {
+        "status": "corrected",
+        "cell": updated_cell,
+        "new_version": doc.version,
+    }
+
+
+@router.get("/{doc_id}/validation")
+async def get_document_validation(doc_id: str):
+    repo = get_document_repo()
+    doc = repo.get_document(doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    tables = repo.get_tables(doc_id)
+    all_validations = []
+    for tbl in tables:
+        for c in tbl.cells:
+            all_validations.extend(c.validations)
+
+    audit_events = repo.get_audit_events(doc_id)
+
+    return {
+        "document_id": doc_id,
+        "validations_count": len(all_validations),
+        "validations": all_validations,
+        "audit_events": audit_events,
+    }
