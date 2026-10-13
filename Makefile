@@ -16,8 +16,8 @@ dev:
 	.venv/bin/uvicorn apps.api.main:app --reload --port 8000
 
 eval:
-	@echo "Eval harness gate: Phase 1 Golden Fixtures"
-	$(PYTEST) tests -v
+	@echo "Running Argus CI Accuracy Evaluation Gates against Golden Suite..."
+	$(PYTEST) evals -v
 
 lint:
 	@echo "Linting Python code"
