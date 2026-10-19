@@ -76,3 +76,37 @@ class MockLLMProvider(BaseLLMProvider):
             "engine_agreement": False,
             "rationale": "Visual inspection verified candidate against cell crop geometry.",
         }
+
+    def extract_figure_visual(
+        self,
+        crop_image_bytes: bytes,
+        figure_type: str = "chart",
+        page_context: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Multimodal visual analysis of a cropped figure (chart, flowchart, organization hierarchy).
+        """
+        if figure_type == "diagram":
+            return {
+                "diagram_type": "process_flow",
+                "nodes": [
+                    {"id": "node_1", "text": "Customer Ingestion", "node_type": "input"},
+                    {"id": "node_2", "text": "Verification Gate", "node_type": "process"},
+                    {"id": "node_3", "text": "Audit Attestation", "node_type": "output"},
+                ],
+                "edges": [
+                    {"from_node_id": "node_1", "to_node_id": "node_2", "label": "extracts"},
+                    {"from_node_id": "node_2", "to_node_id": "node_3", "label": "verifies"},
+                ],
+            }
+        else:
+            # Default chart extraction
+            return {
+                "title": "Extracted Raster Chart",
+                "series_name": "Revenue Highlights",
+                "points": [
+                    {"x_label": "Q1", "y_value": "120.5", "tolerance": "2.5"},
+                    {"x_label": "Q2", "y_value": "135.0", "tolerance": "2.5"},
+                    {"x_label": "Q3", "y_value": "150.2", "tolerance": "2.5"},
+                ],
+            }

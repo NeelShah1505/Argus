@@ -78,6 +78,49 @@ class FormulaRegistry:
 
         self.register_formula("current_ratio", "Current Ratio", ["current_assets", "current_liabilities"], compute_curr_ratio)
 
+        # Net Margin: net_income / revenue
+        def compute_net_margin(facts: List[Fact]) -> Decimal:
+            ni, rev = facts[0].value, facts[1].value
+            if rev == Decimal("0"):
+                raise CalculationError("Cannot compute net margin: revenue is zero.")
+            return (ni / rev).quantize(Decimal("0.0001"))
+
+        self.register_formula("net_margin", "Net Margin", ["net_income", "revenue"], compute_net_margin)
+
+        # Free Cash Flow: operating_cash_flow - capex
+        def compute_fcf(facts: List[Fact]) -> Decimal:
+            ocf, capex = facts[0].value, facts[1].value
+            return (ocf - abs(capex)).quantize(Decimal("0.01"))
+
+        self.register_formula("free_cash_flow", "Free Cash Flow", ["operating_cash_flow", "capex"], compute_fcf)
+
+        # Debt to Equity: total_liabilities / stockholders_equity
+        def compute_dte(facts: List[Fact]) -> Decimal:
+            liab, eq = facts[0].value, facts[1].value
+            if eq == Decimal("0"):
+                raise CalculationError("Cannot compute debt to equity: equity is zero.")
+            return (liab / eq).quantize(Decimal("0.01"))
+
+        self.register_formula("debt_to_equity", "Debt to Equity Ratio", ["total_liabilities", "stockholders_equity"], compute_dte)
+
+        # Return on Equity: net_income / stockholders_equity
+        def compute_roe(facts: List[Fact]) -> Decimal:
+            ni, eq = facts[0].value, facts[1].value
+            if eq == Decimal("0"):
+                raise CalculationError("Cannot compute ROE: equity is zero.")
+            return (ni / eq).quantize(Decimal("0.0001"))
+
+        self.register_formula("return_on_equity", "Return on Equity", ["net_income", "stockholders_equity"], compute_roe)
+
+        # Quick Ratio: (current_assets - inventory) / current_liabilities
+        def compute_quick_ratio(facts: List[Fact]) -> Decimal:
+            ca, inv, cl = facts[0].value, facts[1].value, facts[2].value
+            if cl == Decimal("0"):
+                raise CalculationError("Cannot compute quick ratio: liabilities are zero.")
+            return ((ca - inv) / cl).quantize(Decimal("0.01"))
+
+        self.register_formula("quick_ratio", "Quick Ratio", ["current_assets", "inventory", "current_liabilities"], compute_quick_ratio)
+
     def execute_calculation(
         self,
         formula_id: str,

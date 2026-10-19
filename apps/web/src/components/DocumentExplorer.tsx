@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { TierBadge, TierType } from "./TierBadge";
+import { IconFile, IconLayers, IconCompass } from "./Icons";
 
 interface OverlayBox {
   id: string;
@@ -15,6 +16,7 @@ interface OverlayBox {
 
 export const DocumentExplorer: React.FC = () => {
   const [selectedBoxId, setSelectedBoxId] = useState<string>("box_1");
+  const [activePage, setActivePage] = useState<string>("ops");
 
   const sampleBoxes: OverlayBox[] = [
     { id: "box_1", label: "Total Revenue: $391,036M", tier: "V", x0: 80, y0: 160, x1: 920, y1: 220 },
@@ -25,13 +27,20 @@ export const DocumentExplorer: React.FC = () => {
 
   const selectedBox = sampleBoxes.find((b) => b.id === selectedBoxId) || sampleBoxes[0];
 
+  const tocItems = [
+    { id: "ops", title: "Consolidated Statement of Operations", page: 1 },
+    { id: "bs", title: "Consolidated Balance Sheet", page: 2 },
+    { id: "cf", title: "Cash Flows Statement", page: 3 },
+    { id: "n4", title: "Note 4: Segment Reporting", page: 4 },
+  ];
+
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "240px 1fr 300px",
+        gridTemplateColumns: "260px 1fr 300px",
         gap: "16px",
-        height: "580px",
+        height: "600px",
         backgroundColor: "var(--bg-surface)",
         border: "1px solid var(--border-default)",
         borderRadius: "8px",
@@ -39,23 +48,37 @@ export const DocumentExplorer: React.FC = () => {
       }}
     >
       {/* Left Outline Tree */}
-      <div style={{ borderRight: "1px solid var(--border-subtle)", padding: "16px", fontSize: "13px" }}>
-        <div style={{ color: "var(--text-muted)", fontSize: "11px", textTransform: "uppercase", marginBottom: "12px" }}>
-          Document Outline
+      <div style={{ borderRight: "1px solid var(--border-subtle)", padding: "16px", fontSize: "12.5px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-muted)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "14px" }}>
+          <IconCompass size={13} color="var(--text-muted)" />
+          <span>Document Outline</span>
         </div>
-        <div style={{ display: "grid", gap: "8px" }}>
-          <div style={{ padding: "6px 8px", backgroundColor: "var(--bg-raised)", borderRadius: "4px", color: "var(--text-primary)", fontWeight: 500 }}>
-            📄 Consolidated Operations
-          </div>
-          <div style={{ padding: "6px 8px", color: "var(--text-secondary)", cursor: "pointer" }}>
-            📄 Consolidated Balance Sheet
-          </div>
-          <div style={{ padding: "6px 8px", color: "var(--text-secondary)", cursor: "pointer" }}>
-            📄 Cash Flows Statement
-          </div>
-          <div style={{ padding: "6px 8px", color: "var(--text-secondary)", cursor: "pointer" }}>
-            📄 Note 4: Segment Reporting
-          </div>
+        <div style={{ display: "grid", gap: "4px" }}>
+          {tocItems.map((item) => {
+            const isActive = activePage === item.id;
+            return (
+              <div
+                key={item.id}
+                onClick={() => setActivePage(item.id)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "8px 10px",
+                  borderRadius: "4px",
+                  backgroundColor: isActive ? "var(--bg-raised)" : "transparent",
+                  color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+                  fontWeight: isActive ? 500 : 400,
+                  cursor: "pointer",
+                  transition: "all 120ms ease",
+                  borderLeft: isActive ? "2px solid var(--accent)" : "2px solid transparent",
+                }}
+              >
+                <IconFile size={14} color={isActive ? "var(--accent)" : "var(--text-muted)"} />
+                <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.title}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -63,7 +86,7 @@ export const DocumentExplorer: React.FC = () => {
       <div
         style={{
           backgroundColor: "var(--bg-inset)",
-          padding: "20px",
+          padding: "24px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -72,20 +95,21 @@ export const DocumentExplorer: React.FC = () => {
       >
         <div
           style={{
-            width: "460px",
-            height: "520px",
-            backgroundColor: "#FFFFFF",
-            borderRadius: "4px",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+            width: "480px",
+            height: "540px",
+            backgroundColor: "#0D1117",
+            border: "1px solid var(--border-strong)",
+            borderRadius: "6px",
+            boxShadow: "0 12px 32px rgba(0,0,0,0.6)",
             position: "relative",
-            padding: "24px",
-            color: "#14181D",
+            padding: "28px",
+            color: "#F0F4F8",
           }}
         >
-          <div style={{ fontSize: "14px", fontWeight: 700, marginBottom: "8px" }}>
+          <div style={{ fontSize: "14px", fontWeight: 600, color: "#FFFFFF", marginBottom: "4px" }}>
             Consolidated Statement of Operations
           </div>
-          <div style={{ fontSize: "10px", color: "#666", marginBottom: "16px" }}>
+          <div style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "20px" }}>
             (In Millions, Except Per Share Data)
           </div>
 
@@ -93,11 +117,11 @@ export const DocumentExplorer: React.FC = () => {
           {sampleBoxes.map((box) => {
             const isSelected = box.id === selectedBoxId;
             const borderColor = box.tier === "V" ? "var(--tier-verified)" : "var(--tier-review)";
-            const bgColor = box.tier === "V" ? "rgba(47, 214, 160, 0.15)" : "rgba(245, 181, 65, 0.15)";
+            const bgColor = box.tier === "V" ? "rgba(16, 185, 129, 0.12)" : "rgba(245, 158, 11, 0.12)";
 
             // Scale normalized [0, 1000] to canvas pixel space
-            const top = (box.y0 / 1000) * 520;
-            const height = ((box.y1 - box.y0) / 1000) * 520;
+            const top = (box.y0 / 1000) * 540;
+            const height = ((box.y1 - box.y0) / 1000) * 540;
 
             return (
               <div
@@ -105,25 +129,25 @@ export const DocumentExplorer: React.FC = () => {
                 onClick={() => setSelectedBoxId(box.id)}
                 style={{
                   position: "absolute",
-                  left: "24px",
-                  right: "24px",
+                  left: "28px",
+                  right: "28px",
                   top: `${top}px`,
                   height: `${height}px`,
-                  border: `2px solid ${borderColor}`,
+                  border: `1.5px solid ${borderColor}`,
                   backgroundColor: bgColor,
                   borderRadius: "3px",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "0 8px",
+                  padding: "0 10px",
                   fontSize: "11px",
-                  fontWeight: 600,
-                  boxShadow: isSelected ? `0 0 10px ${borderColor}` : "none",
+                  fontWeight: 500,
+                  boxShadow: isSelected ? `0 0 12px ${borderColor}` : "none",
                   transition: "all 140ms ease-out",
                 }}
               >
-                <span>{box.label}</span>
+                <span className="font-mono">{box.label}</span>
                 <TierBadge tier={box.tier} showLabel={false} />
               </div>
             );
@@ -132,35 +156,37 @@ export const DocumentExplorer: React.FC = () => {
       </div>
 
       {/* Right Element Inspector */}
-      <div style={{ borderLeft: "1px solid var(--border-subtle)", padding: "16px", fontSize: "12px" }}>
-        <div style={{ color: "var(--text-muted)", fontSize: "11px", textTransform: "uppercase", marginBottom: "12px" }}>
-          Selected Element Detail
+      <div style={{ borderLeft: "1px solid var(--border-subtle)", padding: "20px", fontSize: "12px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-muted)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "16px" }}>
+          <IconLayers size={13} color="var(--text-muted)" />
+          <span>Selected Element</span>
         </div>
-        <div style={{ display: "grid", gap: "10px" }}>
+
+        <div style={{ display: "grid", gap: "14px" }}>
           <div>
-            <span style={{ color: "var(--text-muted)" }}>Element ID: </span>
-            <span className="font-mono">{selectedBox.id}</span>
+            <span style={{ color: "var(--text-muted)" }}>Element ID</span>
+            <div className="font-mono" style={{ fontSize: "12px", marginTop: "3px", color: "var(--text-primary)" }}>{selectedBox.id}</div>
           </div>
           <div>
-            <span style={{ color: "var(--text-muted)" }}>Extracted Label: </span>
-            <div style={{ fontWeight: 600, marginTop: "4px" }}>{selectedBox.label}</div>
+            <span style={{ color: "var(--text-muted)" }}>Extracted Label</span>
+            <div style={{ fontWeight: 600, marginTop: "3px", color: "var(--text-primary)" }}>{selectedBox.label}</div>
           </div>
           <div>
-            <span style={{ color: "var(--text-muted)" }}>Accuracy Tier: </span>
+            <span style={{ color: "var(--text-muted)" }}>Accuracy Tier</span>
             <div style={{ marginTop: "4px" }}>
               <TierBadge tier={selectedBox.tier} />
             </div>
           </div>
           <div>
-            <span style={{ color: "var(--text-muted)" }}>Coordinates: </span>
-            <div className="font-mono" style={{ fontSize: "11px", marginTop: "4px", color: "var(--text-secondary)" }}>
+            <span style={{ color: "var(--text-muted)" }}>Coordinates [0-1000]</span>
+            <div className="font-mono" style={{ fontSize: "11px", marginTop: "3px", color: "var(--text-secondary)" }}>
               x: [{selectedBox.x0}, {selectedBox.x1}], y: [{selectedBox.y0}, {selectedBox.y1}]
             </div>
           </div>
           <div>
-            <span style={{ color: "var(--text-muted)" }}>Dual Consensus: </span>
-            <div style={{ color: "var(--tier-verified)", marginTop: "4px" }}>
-              pdfplumber + Docling (100% Agreement)
+            <span style={{ color: "var(--text-muted)" }}>Verification Method</span>
+            <div style={{ color: "var(--tier-verified)", marginTop: "3px", fontSize: "11px", fontWeight: 500 }}>
+              Dual Engine Consensus (100% Agreement)
             </div>
           </div>
         </div>

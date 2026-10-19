@@ -11,42 +11,47 @@ interface TierBadgeProps {
 export const TierBadge: React.FC<TierBadgeProps> = ({ tier, tolerance, showLabel = true }) => {
   const configs: Record<
     TierType,
-    { label: string; icon: string; bg: string; color: string; border: string }
+    { label: string; code: string; bg: string; color: string; border: string; dotColor: string }
   > = {
     V: {
       label: "Verified",
-      icon: "✓",
-      bg: "var(--tier-verified-bg)",
-      color: "var(--tier-verified)",
-      border: "1px solid var(--tier-verified)",
+      code: "VERIFIED",
+      bg: "rgba(16, 185, 129, 0.08)",
+      color: "#10B981",
+      border: "1px solid rgba(16, 185, 129, 0.25)",
+      dotColor: "#10B981",
     },
     E: {
       label: "Extracted",
-      icon: "•",
-      bg: "var(--tier-extracted-bg)",
-      color: "var(--tier-extracted)",
-      border: "1px solid var(--tier-extracted)",
+      code: "EXTRACTED",
+      bg: "rgba(96, 165, 250, 0.08)",
+      color: "#60A5FA",
+      border: "1px solid rgba(96, 165, 250, 0.25)",
+      dotColor: "#60A5FA",
     },
     M: {
       label: tolerance ? `Estimated (${tolerance})` : "Estimated",
-      icon: "≈",
-      bg: "var(--tier-estimated-bg)",
-      color: "var(--tier-estimated)",
-      border: "1px dashed var(--tier-estimated)",
+      code: "ESTIMATED",
+      bg: "rgba(167, 139, 250, 0.08)",
+      color: "#A78BFA",
+      border: "1px dashed rgba(167, 139, 250, 0.35)",
+      dotColor: "#A78BFA",
     },
     R: {
       label: "Needs Review",
-      icon: "⚠",
-      bg: "var(--tier-review-bg)",
-      color: "var(--tier-review)",
-      border: "1px solid var(--tier-review)",
+      code: "REVIEW",
+      bg: "rgba(245, 158, 11, 0.08)",
+      color: "#F59E0B",
+      border: "1px solid rgba(245, 158, 11, 0.25)",
+      dotColor: "#F59E0B",
     },
     F: {
       label: "Failed",
-      icon: "✕",
-      bg: "var(--tier-failed-bg)",
-      color: "var(--tier-failed)",
-      border: "1px solid var(--tier-failed)",
+      code: "FAILED",
+      bg: "rgba(244, 63, 94, 0.08)",
+      color: "#F43F5E",
+      border: "1px solid rgba(244, 63, 94, 0.25)",
+      dotColor: "#F43F5E",
     },
   };
 
@@ -57,12 +62,13 @@ export const TierBadge: React.FC<TierBadgeProps> = ({ tier, tolerance, showLabel
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: "4px",
-        padding: "2px 8px",
-        borderRadius: "9999px",
+        gap: "6px",
+        padding: showLabel ? "3px 9px" : "3px 6px",
+        borderRadius: "4px",
         fontSize: "11px",
         fontFamily: "'IBM Plex Mono', monospace",
-        fontWeight: 600,
+        fontWeight: 500,
+        letterSpacing: "0.02em",
         backgroundColor: cfg.bg,
         color: cfg.color,
         border: cfg.border,
@@ -71,8 +77,20 @@ export const TierBadge: React.FC<TierBadgeProps> = ({ tier, tolerance, showLabel
       }}
       title={`Accuracy Tier ${tier}: ${cfg.label}`}
     >
-      <span>{cfg.icon}</span>
-      {showLabel && <span>{cfg.label}</span>}
+      <span
+        style={{
+          width: "5px",
+          height: "5px",
+          borderRadius: "50%",
+          backgroundColor: cfg.dotColor,
+          display: "inline-block",
+        }}
+      />
+      {showLabel ? (
+        <span>{cfg.label}</span>
+      ) : (
+        <span>{tier}</span>
+      )}
     </span>
   );
 };

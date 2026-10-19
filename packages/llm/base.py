@@ -46,3 +46,16 @@ class BaseLLMProvider(ABC):
         Returns consensus string and confidence score.
         """
         pass
+
+    @abstractmethod
+    def extract_figure_visual(
+        self,
+        crop_image_bytes: bytes,
+        figure_type: str = "chart",
+        page_context: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Multimodal visual analysis of a cropped figure (chart, flowchart, organization hierarchy).
+        Returns structured chart series or diagram graph.
+        """
+        pass

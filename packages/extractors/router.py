@@ -19,6 +19,10 @@ from .native import (
     extract_pdf,
     extract_xlsx,
 )
+from .ocr import extract_scanned_pdf
+from .render_office import render_office_document
+from .text_layer_validator import validate_page_text_layer
+from .vector_chart import extract_vector_charts
 
 
 def render_pdf_pages_to_storage(doc_id: str, file_bytes: bytes) -> List[Page]:
@@ -62,67 +66,40 @@ def route_and_extract(
 
     if ext == ".pdf":
         pages = render_pdf_pages_to_storage(doc_id, file_bytes)
-        _, text_elements, tables = extract_pdf(file_bytes, doc_id)
+        
+        # Phase 2: Check text layer health
+        pdf_doc = fitz.open(stream=file_bytes, filetype="pdf")
+        needs_ocr = False
+        for p_idx, page in enumerate(pdf_doc, start=1):
+            health = validate_page_text_layer(page, page_number=p_idx)
+            if health.should_use_ocr:
+                needs_ocr = True
+                break
+
+        if needs_ocr:
+            text_elements, tables = extract_scanned_pdf(file_bytes, doc_id)
+        else:
+            _, text_elements, tables = extract_pdf(file_bytes, doc_id)
+            # Phase 3: Extract digital vector charts
+            for p_idx, page in enumerate(pdf_doc, start=1):
+                chart_results = extract_vector_charts(page, page_number=p_idx, doc_id=doc_id)
+                for fig, _ in chart_results:
+                    figures.append(fig)
+            
         return pages, text_elements, tables, figures
 
     elif ext == ".docx":
-        # Create a synthetic page render representing the document
-        synthetic_key = f"renders/{doc_id}/p1.png"
-        img = Image.new("RGB", (800, 1000), color=(255, 255, 255))
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-        store.put_bytes(synthetic_key, buf.getvalue(), content_type="image/png")
-
-        pages = [
-            Page(
-                id=f"page_{doc_id}_1",
-                document_id=doc_id,
-                page_number=1,
-                render_key=synthetic_key,
-                width=800.0,
-                height=1000.0,
-            )
-        ]
+        pages = render_office_document(file_bytes, ext, doc_id)
         text_elements, tables = extract_docx(file_bytes, doc_id)
         return pages, text_elements, tables, figures
 
     elif ext in [".xlsx", ".xls"]:
-        synthetic_key = f"renders/{doc_id}/p1.png"
-        img = Image.new("RGB", (1000, 800), color=(255, 255, 255))
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-        store.put_bytes(synthetic_key, buf.getvalue(), content_type="image/png")
-
-        pages = [
-            Page(
-                id=f"page_{doc_id}_1",
-                document_id=doc_id,
-                page_number=1,
-                render_key=synthetic_key,
-                width=1000.0,
-                height=800.0,
-            )
-        ]
+        pages = render_office_document(file_bytes, ext, doc_id)
         text_elements, tables = extract_xlsx(file_bytes, doc_id)
         return pages, text_elements, tables, figures
 
     elif ext == ".csv":
-        synthetic_key = f"renders/{doc_id}/p1.png"
-        img = Image.new("RGB", (800, 600), color=(255, 255, 255))
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-        store.put_bytes(synthetic_key, buf.getvalue(), content_type="image/png")
-
-        pages = [
-            Page(
-                id=f"page_{doc_id}_1",
-                document_id=doc_id,
-                page_number=1,
-                render_key=synthetic_key,
-                width=800.0,
-                height=600.0,
-            )
-        ]
+        pages = render_office_document(file_bytes, ext, doc_id)
         text_elements, tables = extract_csv(file_bytes, doc_id)
         return pages, text_elements, tables, figures
 

@@ -2,7 +2,13 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
-from packages.calc import CalculationError, get_formula_registry, get_lineage_graph
+from packages.calc import (
+    CalculationError,
+    ReconciliationReport,
+    get_formula_registry,
+    get_lineage_graph,
+    run_full_reconciliation,
+)
 from packages.canonical import DerivedMetric, Fact
 from packages.storage.repository import get_document_repo
 
@@ -60,3 +66,20 @@ async def list_facts(
 ):
     repo = get_document_repo()
     return repo.get_facts(doc_id=document_id, entity=entity, metric=metric, period=period)
+
+
+@router.get("/reconciliation", response_model=ReconciliationReport)
+async def get_reconciliation_report(
+    tenant_id: str = "tenant_default",
+    entity: Optional[str] = None,
+    document_id: Optional[str] = None,
+):
+    """
+    Executes forensic cross-period reconciliation:
+    1. Cross-period restatement detection across filings.
+    2. Balance sheet cash delta vs Cash Flow Statement net change.
+    3. Footnote schedule reconciliation.
+    """
+    repo = get_document_repo()
+    facts = repo.get_facts(doc_id=document_id, entity=entity)
+    return run_full_reconciliation(facts, tenant_id=tenant_id)

@@ -88,6 +88,10 @@ def test_upload_docx_and_xlsx():
     res_docx = client.post("/api/v1/documents?tenant_id=tenant_test", files=files_docx)
     assert res_docx.status_code == 201
     assert res_docx.json()["tables_extracted"] >= 1
+    docx_id = res_docx.json()["id"]
+    img_docx = client.get(f"/api/v1/documents/{docx_id}/pages/1/image")
+    assert img_docx.status_code == 200
+    assert len(img_docx.content) > 500
 
     # XLSX
     xlsx_bytes = generate_test_xlsx()
@@ -95,3 +99,7 @@ def test_upload_docx_and_xlsx():
     res_xlsx = client.post("/api/v1/documents?tenant_id=tenant_test", files=files_xlsx)
     assert res_xlsx.status_code == 201
     assert res_xlsx.json()["tables_extracted"] >= 1
+    xlsx_id = res_xlsx.json()["id"]
+    img_xlsx = client.get(f"/api/v1/documents/{xlsx_id}/pages/1/image")
+    assert img_xlsx.status_code == 200
+    assert len(img_xlsx.content) > 500

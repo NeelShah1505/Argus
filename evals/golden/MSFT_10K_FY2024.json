@@ -1,0 +1,108 @@
+{
+  "ticker": "MSFT",
+  "company_name": "MICROSOFT CORPORATION",
+  "cik": "0000789019",
+  "fiscal_year": 2024,
+  "period": "FY2024",
+  "critical_fields": [
+    {
+      "metric": "total_revenue",
+      "gaap_concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "expected_value": "198270000000",
+      "scale": "1.0",
+      "currency": "USD",
+      "is_negative": false,
+      "source_form": "10-K",
+      "fiscal_year": 2024,
+      "period": "FY2024"
+    },
+    {
+      "metric": "cost_of_sales",
+      "gaap_concept": "CostOfGoodsAndServicesSold",
+      "expected_value": "62650000000",
+      "scale": "1.0",
+      "currency": "USD",
+      "is_negative": true,
+      "source_form": "10-K",
+      "fiscal_year": 2024,
+      "period": "FY2024"
+    },
+    {
+      "metric": "gross_profit",
+      "gaap_concept": "GrossProfit",
+      "expected_value": "135620000000",
+      "scale": "1.0",
+      "currency": "USD",
+      "is_negative": false,
+      "source_form": "10-K",
+      "fiscal_year": 2024,
+      "period": "FY2024"
+    },
+    {
+      "metric": "operating_income",
+      "gaap_concept": "OperatingIncomeLoss",
+      "expected_value": "83383000000",
+      "scale": "1.0",
+      "currency": "USD",
+      "is_negative": false,
+      "source_form": "10-K",
+      "fiscal_year": 2024,
+      "period": "FY2024"
+    },
+    {
+      "metric": "net_income",
+      "gaap_concept": "NetIncomeLoss",
+      "expected_value": "72738000000",
+      "scale": "1.0",
+      "currency": "USD",
+      "is_negative": false,
+      "source_form": "10-K",
+      "fiscal_year": 2024,
+      "period": "FY2024"
+    },
+    {
+      "metric": "total_assets",
+      "gaap_concept": "Assets",
+      "expected_value": "411976000000",
+      "scale": "1.0",
+      "currency": "USD",
+      "is_negative": false,
+      "source_form": "10-K",
+      "fiscal_year": 2024,
+      "period": "FY2024"
+    },
+    {
+      "metric": "total_liabilities",
+      "gaap_concept": "Liabilities",
+      "expected_value": "205753000000",
+      "scale": "1.0",
+      "currency": "USD",
+      "is_negative": false,
+      "source_form": "10-K",
+      "fiscal_year": 2024,
+      "period": "FY2024"
+    },
+    {
+      "metric": "stockholders_equity",
+      "gaap_concept": "StockholdersEquity",
+      "expected_value": "166542000000",
+      "scale": "1.0",
+      "currency": "USD",
+      "is_negative": false,
+      "source_form": "10-K",
+      "fiscal_year": 2024,
+      "period": "FY2024"
+    },
+    {
+      "metric": "cash_and_equivalents",
+      "gaap_concept": "CashAndCashEquivalentsAtCarryingValue",
+      "expected_value": "34704000000",
+      "scale": "1.0",
+      "currency": "USD",
+      "is_negative": false,
+      "source_form": "10-K",
+      "fiscal_year": 2024,
+      "period": "FY2024"
+    }
+  ]
+}

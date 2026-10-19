@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from packages.calc import get_formula_registry, get_lineage_graph
 from packages.canonical import AccuracyTier, DerivedMetric, Fact
 from packages.llm import get_llm_provider
+from packages.retrieval import get_retrieval_engine
 from packages.storage.repository import get_document_repo
 from .claim_verifier import verify_and_ground_claims
 
@@ -16,6 +17,7 @@ class AnalystResponse(BaseModel):
     interpretation: Optional[str] = None
     missing_evidence: List[str] = []
     flags: List[str] = []
+    retrieved_chunks: List[Dict[str, Any]] = []
 
 
 class AnalystOrchestrator:
@@ -39,6 +41,21 @@ class AnalystOrchestrator:
         4. VERIFY: Code-level Claim Verifier strips ungrounded tokens
         5. ANSWER: Format strict JSON response
         """
+        # Retrieve relevant chunks via hybrid search (BM25 + Dense RRF)
+        retrieved = get_retrieval_engine().search(query, document_id=doc_id, top_k=3)
+        retrieved_data = [
+            {
+                "id": ch.id,
+                "document_id": ch.document_id,
+                "page_number": ch.page_number,
+                "section_title": ch.section_title,
+                "chunk_type": ch.chunk_type,
+                "snippet": ch.text[:200],
+                "score": round(score, 4),
+            }
+            for ch, score in retrieved
+        ]
+
         available_facts = self.repo.get_facts(doc_id=doc_id)
         if not available_facts:
             # Explicit Abstention Doctrine (R4)
@@ -49,6 +66,7 @@ class AnalystOrchestrator:
                 interpretation=None,
                 missing_evidence=["Uploaded document contains zero extracted financial facts."],
                 flags=[],
+                retrieved_chunks=retrieved_data,
             )
 
         executed_calcs: List[DerivedMetric] = []
@@ -99,6 +117,7 @@ class AnalystOrchestrator:
             interpretation="Top-line trajectory demonstrates continuous operational performance.",
             missing_evidence=[],
             flags=["UNSUPPORTED_CLAIMS_STRIPPED"] if verification.has_unsupported_claims else [],
+            retrieved_chunks=retrieved_data,
         )
 
 

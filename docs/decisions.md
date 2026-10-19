@@ -49,7 +49,7 @@ LLMs are probabilistic token predictors and are fundamentally incapable of relia
 
 ### Decision
 1. **The LLM Never Calculates Numbers:** All calculations are executed by a typed Python calculation registry using `decimal.Decimal`.
-2. **Code-Level Claim Verifier:** A post-generation verification step (`claim_verifier.py`) inspects the LLM's analytical prose, extracts every numeric token via AST parsing, verifies that each token maps to a registered Fact ID or Calculation ID in the context, and strips any ungrounded numbers.
+2. **Deterministic Claim Verifier:** A post-generation verification step (`claim_verifier.py`) inspects the LLM's analytical prose, extracts every numeric token, canonicalizes it through the 32-case financial number pipeline, verifies that each token maps to a registered Fact ID or Calculation ID in the context, and strips any ungrounded numbers.
 
 ### Consequences
 - **Positive:** Mathematical correctness is absolute ($100\%$ reproducible). Hallucinations cannot leak into the UI.

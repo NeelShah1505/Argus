@@ -110,3 +110,24 @@ def test_queries_api_endpoint():
     assert "answer" in data
     assert "claims" in data
     assert "Stark Industries" in data["answer"]
+
+
+def test_claim_verifier_canonical_pipeline_cases():
+    """Verify that scale multipliers (12.5M), parentheses negatives (500), and currency are canonicalized."""
+    f_millions = make_fact("f_m", "revenue", Decimal("12500000"))
+    f_loss = make_fact("f_l", "net_loss", Decimal("-500"))
+    allowed = [f_millions, f_loss]
+
+    draft = "Revenue stood at $12.5M while net loss was (500) USD."
+    res = verify_and_ground_claims(draft, allowed, [])
+    assert res.has_unsupported_claims is False
+    assert len(res.valid_claims) == 2
+    assert len(res.stripped_tokens) == 0
+
+    # Unmatched hallucinated scale
+    draft_fake = "Revenue stood at $12.5M but EBITDA was $99.9B."
+    res_fake = verify_and_ground_claims(draft_fake, allowed, [])
+    assert res_fake.has_unsupported_claims is True
+    assert "$99.9B" in res_fake.stripped_tokens
+    assert "[not stated in the ingested documents]" in res_fake.verified_answer
+

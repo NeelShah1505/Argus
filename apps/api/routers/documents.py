@@ -4,10 +4,13 @@ from typing import List, Optional
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from pydantic import BaseModel
 
+from decimal import Decimal
 from packages.canonical import (
     AccuracyTier,
     Document,
+    DocumentOutline,
     DocumentStatus,
+    Fact,
     Job,
     Page,
     Table,
@@ -15,6 +18,10 @@ from packages.canonical import (
     TextElement,
 )
 from packages.extractors import route_and_extract
+from packages.extractors.structure import extract_document_outline
+from packages.normalize import canonicalize_financial_number
+from packages.calc.reconciliation import ReconciliationReport, run_full_reconciliation
+from packages.retrieval import chunk_document_elements, get_retrieval_engine
 from packages.storage.object_store import get_object_store
 from packages.storage.repository import get_document_repo
 
@@ -100,8 +107,54 @@ async def upload_document(
             repo.add_page(p)
         for t_elem in text_elements:
             repo.add_text_element(t_elem)
+
+        entity_guess = filename.rsplit(".", 1)[0].replace("_", " ").title()
+
         for tbl in tables:
             repo.add_table(tbl)
+            col_headers = {}
+            row_labels = {}
+            for c in tbl.cells:
+                if c.is_header or c.row_idx == 0:
+                    col_headers[c.col_idx] = c.raw_text.strip()
+                if c.col_idx == 0:
+                    row_labels[c.row_idx] = c.raw_text.strip()
+
+            for c in tbl.cells:
+                if c.is_header or c.row_idx == 0 or c.col_idx == 0:
+                    continue
+                norm = canonicalize_financial_number(c.raw_text)
+                if norm.normalized_value is not None and not norm.is_null:
+                    metric_label = row_labels.get(c.row_idx, f"Row {c.row_idx}")
+                    period_label = col_headers.get(c.col_idx, "FY2024")
+                    fact_id = f"fact_{doc_id}_{c.id}"
+                    fact = Fact(
+                        id=fact_id,
+                        tenant_id=tenant_id,
+                        document_id=doc_id,
+                        element_id=c.id,
+                        entity=entity_guess,
+                        metric=metric_label,
+                        period=period_label,
+                        value=norm.normalized_value,
+                        raw_text=c.raw_text,
+                        currency=norm.currency or "USD",
+                        scale=norm.scale or Decimal("1.0"),
+                        tier=c.tier,
+                        confidence=1.0,
+                        evidence=c.evidence,
+                    )
+                    repo.add_fact(fact)
+
+        # Structure-aware chunking and hybrid retrieval indexing
+        outline = None
+        if filename.lower().endswith(".pdf"):
+            try:
+                outline = extract_document_outline(file_bytes, doc_id)
+            except Exception:
+                outline = None
+        chunks = chunk_document_elements(doc_id, text_elements, tables, outline=outline)
+        get_retrieval_engine().index_chunks(chunks)
 
         doc.page_count = len(pages)
         doc.status = DocumentStatus.EXTRACTED
@@ -278,3 +331,40 @@ async def get_document_validation(doc_id: str):
         "validations": all_validations,
         "audit_events": audit_events,
     }
+
+
+@router.get("/{doc_id}/toc", response_model=DocumentOutline)
+async def get_document_toc(doc_id: str):
+    repo = get_document_repo()
+    doc = repo.get_document(doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    store = get_object_store()
+    orig_key = f"originals/{doc_id}_{doc.filename}"
+    file_bytes = store.get_bytes(orig_key)
+    if not file_bytes:
+        # Fallback: synthesize single root page
+        return DocumentOutline(
+            document_id=doc_id,
+            items=[{"level": 1, "title": doc.filename, "page_number": 1, "section_id": f"sec_{doc_id}_root"}],
+        )
+
+    return extract_document_outline(file_bytes, doc_id)
+
+
+@router.get("/{doc_id}/reconciliation", response_model=ReconciliationReport)
+async def get_document_reconciliation(doc_id: str):
+    repo = get_document_repo()
+    doc = repo.get_document(doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    doc_facts = repo.get_facts(doc_id=doc_id)
+    if doc_facts:
+        entity = doc_facts[0].entity
+        facts = repo.get_facts(entity=entity)
+    else:
+        facts = doc_facts
+
+    return run_full_reconciliation(facts, tenant_id=doc.tenant_id)

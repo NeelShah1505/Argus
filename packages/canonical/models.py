@@ -100,6 +100,19 @@ class Page(BaseModel):
     height: float
 
 
+class TOCItem(BaseModel):
+    level: int  # 1 for H1/Section, 2 for H2, 3 for H3
+    title: str
+    page_number: int
+    section_id: str
+    bbox: Optional[BoundingBox] = None
+
+
+class DocumentOutline(BaseModel):
+    document_id: str
+    items: List[TOCItem] = Field(default_factory=list)
+
+
 class TextElement(BaseModel):
     id: str
     document_id: str
@@ -147,6 +160,8 @@ class Figure(BaseModel):
     figure_type: str = "chart"
     bbox: BoundingBox
     image_crop_key: str
+    chart_series: List["ChartSeries"] = Field(default_factory=list)
+    diagram_graph: Optional["DiagramGraph"] = None
 
 
 class ChartSeriesPoint(BaseModel):

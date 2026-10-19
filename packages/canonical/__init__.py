@@ -10,6 +10,7 @@ from .models import (
     DiagramGraph,
     DiagramNode,
     Document,
+    DocumentOutline,
     DocumentStatus,
     EvidenceCoordinates,
     ExtractionMetadata,
@@ -20,6 +21,7 @@ from .models import (
     Table,
     TableCell,
     TextElement,
+    TOCItem,
     ValidationResult,
 )
 

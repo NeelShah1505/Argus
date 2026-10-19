@@ -439,11 +439,11 @@ Large Language Models are strictly prohibited from generating ungrounded financi
                |
                v
 +-----------------------------------------------------------+
-|               CODE-LEVEL CLAIM VERIFIER                   |
-| 1. Extract all numeric tokens (regex & AST parser)        |
-| 2. Reconcile each numeric against provided Fact IDs       |
+|              DETERMINISTIC CLAIM VERIFIER                 |
+| 1. Extract numeric tokens (32-case canonicalizer pipeline)|
+| 2. Reconcile canonical value against allowed Fact/Calc IDs|
 | 3. Strip any ungrounded numeric claim immediately         |
-| 4. Append explicit Evidence Citations [Doc P.X T.Y R.Z]   |
+| 4. Append explicit Evidence Citations [Tier: Provenance]  |
 +-----------------------------+-----------------------------+
                               |
                               v

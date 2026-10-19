@@ -94,11 +94,13 @@ Phase 3: Enterprise Hardening & Predictive Scaling (Future)
 
 | Metric | Target Gate | Verification Method |
 | :--- | :--- | :--- |
-| **Critical-Field Exact Accuracy** *(Verified Tier, Digital PDFs)* | $\ge 99.5\%$ | Golden-set regression suite in CI |
-| **Table Cell Structural & Value $F_1$** | $\ge 97.0\%$ | Grid alignment diff against ground truth |
+| **Silent Error Rate (SER)** | $< 0.1\%$ *(Zero tolerance for unflagged errors)* | Ground-truth benchmark suite |
+| **Detection Rate (DR)** | $> 99.0\%$ *(Errors quarantined to Review tier)* | Injected error regression suite |
+| **Critical-Field Exact Accuracy** *(Verified Tier, Digital PDFs)* | Target: $\ge 99.0\%$ *(Baselined against D1 Ground Truth)* | Golden-set regression suite in CI |
+| **Table Cell Structural & Value $F_1$** | Target: $\ge 95.0\%$ *(Baselined against D1 Ground Truth)* | Grid alignment diff against ground truth |
 | **Provenance Coverage of Displayed Numerals** | $100.0\%$ | Automated UI claim scanner |
-| **Unsupported Numeric Claims in Answers** | $0$ *(Hard Gate)* | Server-side AST claim verifier |
-| **Human Review Intervention Rate** *(Phase 2 Target)* | $< 10.0\%$ of cells | Extraction telemetry |
+| **Unsupported Numeric Claims in Answers** | $0$ *(Hard Gate)* | Server-side Deterministic Claim Verifier |
+| **Human Review Intervention Rate** | Tracked per doc type; target $< 10.0\%$ | Extraction telemetry |
 | **Document Processing Cost Ceiling** | Capped per page | Token & execution budget telemetry |
 
 ---
