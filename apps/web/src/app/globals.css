@@ -95,3 +95,77 @@ kbd {
   border-radius: 4px;
   color: var(--text-secondary);
 }
+
+/* Scanning Beam & Moving Gradient Border Animations */
+@keyframes scanLaser {
+  0% {
+    top: 0%;
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 98%;
+    opacity: 0.9;
+  }
+}
+
+@keyframes gradientBorder {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4), inset 0 0 6px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.8), inset 0 0 10px rgba(16, 185, 129, 0.4);
+  }
+}
+
+@keyframes hudPulse {
+  0%, 100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.scan-laser-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, #10B981 15%, #34D399 50%, #10B981 85%, transparent 100%);
+  box-shadow: 0 0 15px #10B981, 0 0 30px #34D399;
+  animation: scanLaser 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.scan-gradient-border {
+  background: linear-gradient(60deg, #10B981, #06B6D4, #3B82F6, #8B5CF6, #EC4899, #10B981);
+  background-size: 300% 300%;
+  animation: gradientBorder 4s ease infinite;
+  padding: 2.5px;
+  border-radius: 8px;
+}
+
+.scan-hud-overlay {
+  animation: hudPulse 2s ease-in-out infinite;
+}
+
+.active-bbox-highlight {
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+

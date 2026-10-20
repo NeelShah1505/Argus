@@ -5,6 +5,7 @@ import { AnomalyFeed } from "../components/AnomalyFeed";
 import { AskArgus } from "../components/AskArgus";
 import { AuditPackViewer } from "../components/AuditPackViewer";
 import { DocumentExplorer } from "../components/DocumentExplorer";
+import { DocumentWorkbench } from "../components/DocumentWorkbench";
 import { EvidencePopover } from "../components/EvidencePopover";
 import { MetricCard } from "../components/MetricCard";
 import { ReconciliationViewer } from "../components/ReconciliationViewer";
@@ -20,29 +21,37 @@ import {
   IconSliders,
   IconArrowRight,
   IconCheck,
+  IconScan,
 } from "../components/Icons";
 
 export default function ArgusApp() {
   const [activeTab, setActiveTab] = useState<
-    "insights" | "explorer" | "review" | "ask" | "reconciliation" | "scenarios" | "audit" | "inbox"
-  >("insights");
+    "workbench" | "insights" | "review" | "ask" | "reconciliation" | "scenarios" | "audit" | "inbox"
+  >("workbench");
 
   const [apiConnected, setApiConnected] = useState<boolean | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadedDocs, setUploadedDocs] = useState<Array<{ id: string; filename: string; version: string; status: string; exceptions: string }>>([
     {
+      id: "doc_apple_q4",
+      filename: "Apple_FY24_Q4_Actual_Financial_Statements.pdf",
+      version: "v1",
+      status: "VERIFIED",
+      exceptions: "4 Tables Extracted",
+    },
+    {
       id: "doc_annual_2024",
-      filename: "Apple_2024_10K_Annual_Report.pdf",
+      filename: "Acme_Corp_Consolidated_Financials_2024.pdf",
       version: "v1",
       status: "VERIFIED",
       exceptions: "0 Exceptions",
     },
     {
-      id: "doc_beta_q3",
-      filename: "BetaHoldings_Q3_Restructuring.xlsx",
-      version: "v2",
-      status: "REVIEW",
-      exceptions: "1 Discrepancy",
+      id: "doc_scanned_inv",
+      filename: "Scanned_Logistics_Invoice.pdf",
+      version: "v1",
+      status: "VERIFIED",
+      exceptions: "Tesseract OCR Active",
     },
   ]);
 
@@ -148,11 +157,10 @@ export default function ArgusApp() {
   ];
 
   const navItems = [
-    { key: "insights", label: "Executive Insights", icon: IconShield },
-    { key: "explorer", label: "Document Explorer", icon: IconCompass },
+    { key: "workbench", label: "Extract & Document Workbench", icon: IconScan },
     { key: "review", label: "Review Console", icon: IconLayers },
-    { key: "ask", label: "Ask Argus (Q&A)", icon: IconShield },
     { key: "reconciliation", label: "Reconciliation", icon: IconCheck },
+    { key: "insights", label: "Executive Analytics", icon: IconShield },
     { key: "scenarios", label: "Scenario Modeler", icon: IconSliders },
     { key: "audit", label: "Audit Pack Center", icon: IconFile },
     { key: "inbox", label: "Workspace Inbox", icon: IconUpload },
@@ -165,7 +173,7 @@ export default function ArgusApp() {
         style={{
           borderBottom: "1px solid var(--border-default)",
           backgroundColor: "var(--bg-surface)",
-          padding: "14px 32px",
+          padding: "12px 28px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -173,7 +181,7 @@ export default function ArgusApp() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-            <h1 className="font-serif" style={{ fontSize: "22px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+            <h1 className="font-serif" style={{ fontSize: "21px", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
               Argus
             </h1>
             <span className="font-mono" style={{ fontSize: "11px", color: "var(--text-muted)" }}>
@@ -181,11 +189,11 @@ export default function ArgusApp() {
             </span>
           </div>
           <span style={{ fontSize: "11px", color: "var(--text-muted)", paddingLeft: "14px", borderLeft: "1px solid var(--border-subtle)" }}>
-            Financial Intelligence & Verification Platform
+            Autonomous Document Intelligence & Verification
           </span>
         </div>
 
-        <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "18px", alignItems: "center" }}>
           {/* API Status Indicator */}
           <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", fontFamily: "'IBM Plex Mono', monospace" }}>
             <span
@@ -198,11 +206,17 @@ export default function ArgusApp() {
               }}
             />
             <span style={{ color: "var(--text-muted)" }}>
-              {apiConnected ? "API Connected (Port 8000)" : "Connecting API..."}
+              {apiConnected ? "API Connected (:8000)" : "Connecting API..."}
             </span>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "11px" }}>
+          {/* OCR Engine Active Badge */}
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px" }}>
+            <span style={{ color: "var(--text-muted)" }}>OCR Engine:</span>
+            <span style={{ color: "var(--accent)", fontWeight: 600 }} className="font-mono">Tesseract 5.5.3 Active</span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px" }}>
             <span style={{ color: "var(--text-muted)" }}>Evidence Guarantee:</span>
             <span style={{ color: "var(--tier-verified)", fontWeight: 600 }}>Zero Silent Errors</span>
           </div>
@@ -216,7 +230,7 @@ export default function ArgusApp() {
         style={{
           display: "flex",
           gap: "4px",
-          padding: "8px 32px",
+          padding: "6px 28px",
           borderBottom: "1px solid var(--border-subtle)",
           backgroundColor: "var(--bg-surface)",
           overflowX: "auto",
@@ -253,7 +267,9 @@ export default function ArgusApp() {
       </nav>
 
       {/* Main Body Content */}
-      <main style={{ maxWidth: "1400px", margin: "0 auto", padding: "32px" }}>
+      <main style={{ maxWidth: activeTab === "workbench" ? "100%" : "1400px", margin: "0 auto", padding: activeTab === "workbench" ? "14px 20px" : "32px" }}>
+        {/* TAB 0: Master Document Workbench */}
+        {activeTab === "workbench" && <DocumentWorkbench />}
         {/* TAB 1: Insights Dashboard */}
         {activeTab === "insights" && (
           <div style={{ display: "grid", gap: "24px" }}>
@@ -332,7 +348,7 @@ export default function ArgusApp() {
                     agreementScore: 1.0,
                     validationsPassed: ["Subtotal Footing", "Balance Sheet Identity"],
                   }}
-                  onOpenInDocument={() => setActiveTab("explorer")}
+                  onOpenInDocument={() => setActiveTab("workbench")}
                 >
                   $120,944M
                 </EvidencePopover>{" "}
@@ -345,24 +361,6 @@ export default function ArgusApp() {
           </div>
         )}
 
-        {/* TAB 2: Document Explorer */}
-        {activeTab === "explorer" && (
-          <div style={{ display: "grid", gap: "20px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <h2 style={{ fontSize: "18px", fontWeight: 600 }}>Document Explorer & Bounding Box Overlays</h2>
-                <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "4px" }}>
-                  Interactive canvas mapping normalized bounding boxes directly on rendered document pages.
-                </p>
-              </div>
-              <span style={{ fontSize: "11px", color: "var(--text-muted)", fontFamily: "'IBM Plex Mono', monospace" }}>
-                150 DPI Render Sync
-              </span>
-            </div>
-
-            <DocumentExplorer />
-          </div>
-        )}
 
         {/* TAB 3: Review Console */}
         {activeTab === "review" && (
@@ -488,7 +486,7 @@ export default function ArgusApp() {
                     </td>
                     <td style={{ padding: "12px 8px" }}>
                       <button
-                        onClick={() => setActiveTab("explorer")}
+                        onClick={() => setActiveTab("workbench")}
                         style={{
                           background: "none",
                           border: "none",
